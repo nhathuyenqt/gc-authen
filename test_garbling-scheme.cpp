@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
-
+#include <random>
 #include "garbling-scheme.cpp"
+#include "garbling_huyen.cpp"
 
 using std::cout;
 using std::endl;
@@ -16,11 +17,29 @@ int main(int argc, char** argv) {
 	vector<block> encoding_info;
 	vector<bool> decoding_info;
 	vector<block> encoded_input;
-	vector<bool> input(64, false);
+	vector<bool> input(64);
 	vector<block> encoded_output;
 	vector<bool> output;
+
+	// First create an instance of an engine.
+    random_device rnd_device;
+    // Specify the engine and distribution.
+    mt19937 mersenne_engine {rnd_device()};  // Generates random integers
+    // uniform_int_distribution<int> dist (0, 1);
+    auto gen = std::bind(std::uniform_int_distribution<>(0,1),std::default_random_engine());
+    
+    // auto gen = [&dist, &mersenne_engine](){
+    //                return dist(mersenne_engine);
+
+    generate(begin(input), end(input), gen);
+    
+    // Optional
+    for (auto i : input) {
+        cout << i << " ";
+    }
+    
 	//string gc_filename = "circuits/garbled_adder_32bit";
-	string gc_filename = "garbled_adder_32bit.txt";
+	string gc_filename = "adder_32bit.txt";
 	string circuit_filename = "emp-tool/emp-tool/circuits/files/bristol_format/adder_32bit.txt";
 	garble(&encoding_info, &decoding_info, gc_filename, circuit_filename);
 	encode(&encoded_input, input, encoding_info);

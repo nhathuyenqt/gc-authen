@@ -44,7 +44,7 @@ void sort(int n) {
 void minus(int n){
 	Integer a(n, 0, ALICE);
 	Integer b(n, 0, BOB);
-	Integer c = a+b;
+	Integer c = a-b;
 	c.reveal<string>();
 
 }

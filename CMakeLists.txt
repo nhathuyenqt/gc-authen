@@ -1,26 +1,56 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required (VERSION 2.8.12)
+project (emptool)
+set(NAME "emp-tool")
 
-# set the project name
-project(gc-bas)
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${CMAKE_SOURCE_DIR}/emp-tool/circuits/files/bristol_fashion/Keccak_f.txt.cpp
+  COMMAND xxd -i emp-tool/circuits/files/bristol_fashion/Keccak_f.txt emp-tool/circuits/files/bristol_fashion/Keccak_f.txt.hex
+  COMMAND echo "\\#include \\\"emp-tool/circuits/sha3_256.h\\\"" > emp-tool/circuits/files/bristol_fashion/Keccak_f.txt.cpp
+  COMMAND cat emp-tool/circuits/files/bristol_fashion/Keccak_f.txt.hex >> emp-tool/circuits/files/bristol_fashion/Keccak_f.txt.cpp
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  COMMENT "Compiling Keccak circuit file to binary")
 
-set(MY_SOURCES  test_garbling-scheme.cpp)
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${CMAKE_SOURCE_DIR}/emp-tool/circuits/files/bristol_fashion/aes_128.txt.cpp
+  COMMAND xxd -i emp-tool/circuits/files/bristol_fashion/aes_128.txt emp-tool/circuits/files/bristol_fashion/aes_128.txt.hex
+  COMMAND echo "\\#include \\\"emp-tool/circuits/aes_128_ctr.h\\\"" > emp-tool/circuits/files/bristol_fashion/aes_128.txt.cpp
+  COMMAND cat emp-tool/circuits/files/bristol_fashion/aes_128.txt.hex >> emp-tool/circuits/files/bristol_fashion/aes_128.txt.cpp
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  COMMENT "Compiling aes_128 circuit file to binary")
 
-add_subdirectory(emp-tool)
+set(sources
+emp-tool/emp-tool.cpp
+emp-tool/circuits/files/bristol_fashion/aes_128.txt.cpp
+emp-tool/circuits/files/bristol_fashion/Keccak_f.txt.cpp
+emp-tool/circuits/float32_add.cpp
+emp-tool/circuits/float32_cos.cpp
+emp-tool/circuits/float32_div.cpp
+emp-tool/circuits/float32_eq.cpp
+emp-tool/circuits/float32_le.cpp
+emp-tool/circuits/float32_leq.cpp
+emp-tool/circuits/float32_mul.cpp
+emp-tool/circuits/float32_sin.cpp
+emp-tool/circuits/float32_sq.cpp
+emp-tool/circuits/float32_sqrt.cpp
+emp-tool/circuits/float32_sub.cpp
+emp-tool/circuits/float32_exp2.cpp
+emp-tool/circuits/float32_exp.cpp
+emp-tool/circuits/float32_ln.cpp
+emp-tool/circuits/float32_log2.cpp
+)
+
+set(CMAKE_FOLDER ./)
+include(${CMAKE_FOLDER}/cmake/emp-base.cmake)
+
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 
-# add the executable
-add_executable(test_garbling-scheme ${MY_SOURCES})
+add_library(${NAME} SHARED ${sources})
 
+install(DIRECTORY emp-tool DESTINATION include/)
+install(DIRECTORY cmake/ DESTINATION cmake/)
+install(TARGETS ${NAME} DESTINATION lib)
 
-target_link_libraries(test_garbling-scheme ${OPENSSL_LIBRARIES})
-target_link_libraries(test_garbling-scheme emp-tool)
-
-target_include_directories(test_garbling-scheme PUBLIC . emp-tool)
-
-set(CMAKE_FOLDER emp-tool/)
-include(emp-tool/cmake/emp-base.cmake)
-set(CMAKE_FOLDER .)
-
-
+ENABLE_TESTING()
+ADD_SUBDIRECTORY(test)

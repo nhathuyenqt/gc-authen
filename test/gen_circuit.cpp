@@ -46,7 +46,6 @@ void minus(int n){
 	Integer b(n, 0, BOB);
 	Integer c = a-b;
 	c.reveal<string>();
-
 }
 void subtract_vector(int n){
 	Integer *A = new Integer[n];
